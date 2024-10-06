@@ -16,35 +16,46 @@ def menu():
     return input("Seleccione una opción: ")
 
 def crear_cuenta():
-    # Se leen las cuentas y se guardan en una variable dentro del bucle
+    # Leer las cuentas existentes del archivo JSON
     try:
         with open(RUTA_DATOS, 'r') as archivo:
             cuentas = json.load(archivo)
     except FileNotFoundError:
         cuentas = []  # Si el archivo no existe, empezar con una lista vacía
 
-    # Pedir al usuario los datos para la nueva cuenta
-    print('')
-    print('A continucacion le pediremos los datos para su nueva cuenta')
-    numero = input("Ingrese un número de cuenta: ")
+    # Generar un número de cuenta único
+    numeros_existentes = [int(cuenta['numero']) for cuenta in cuentas]
+    nuevo_numero = None
+
+    for i in range(1, 10000):  # De 0001 a 9999
+        if i not in numeros_existentes:
+            nuevo_numero = f"{i:04d}"  # Formato con 4 dígitos (0001, 0002, ..., 9999)
+            break
+
+    if nuevo_numero is None:
+        print("Error: No se pueden crear más cuentas. Se ha alcanzado el límite máximo.")
+        return
+
+    # Pedir al usuario el PIN para la nueva cuenta
+    print(f"Su número de cuenta es: {nuevo_numero}")
     pin = input("Ingrese un PIN para su cuenta: ")
-    saldo = float(input("Ingrese el saldo inicial: "))
+    saldo = float(input("Ingrese el monto a ingresar a la cuenta: "))
 
     # Crear un diccionario para la nueva cuenta
     nueva_cuenta = {
-        "numero": numero,
+        "numero": nuevo_numero,
         "pin": pin,
         "saldo": saldo
     }
 
-    # Se agrega la cuenta a la lista de cuentas
+    # Agregar la nueva cuenta a la lista de cuentas
     cuentas.append(nueva_cuenta)
 
-    # Devolver la lista de cuentas al archovo Jeison
+    # Escribir la lista de cuentas actualizada de vuelta al archivo JSON
     with open(RUTA_DATOS, 'w') as archivo:
         json.dump(cuentas, archivo, indent=4)
 
-    print("Cuenta creada exitosamente.")
+    print(f"Cuenta creada exitosamente. Su número de cuenta es: {nuevo_numero}")
 
 
 def verify():
